@@ -17,7 +17,7 @@ public class KakaoSocialLoginController {
 
     private final KakaSocialLoginService kakaSocialLoginService;
 
-    @PostMapping("/login")
+    @PostMapping("/login/openfeign")
     public KakaoUserInfoResponse login(
             @RequestBody KakaoSocialLoginRequest kakaoSocialLoginRequest
     ) {

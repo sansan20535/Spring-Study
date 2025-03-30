@@ -27,7 +27,7 @@ public class KakaSocialLoginService {
     private final KakaoUserInfoClient kakaoUserInfoClient;
 
     public KakaoUserInfoResponse login(final String code) {
-        KakaoAccessTokenResponse kakaoAccessTokenResponse = kakaoAccessTokenClient.kakaoAuth(
+        final KakaoAccessTokenResponse kakaoAccessTokenResponse = kakaoAccessTokenClient.kakaoAuth(
                 kakaoContentType,
                 code,
                 kakaoClientId,
