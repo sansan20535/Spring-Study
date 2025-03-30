@@ -1,0 +1,12 @@
+dependencies {
+    //openfeign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.1.3'
+}
+
+bootJar {
+    enabled = true
+}
+
+jar {
+    enabled = false
+}
