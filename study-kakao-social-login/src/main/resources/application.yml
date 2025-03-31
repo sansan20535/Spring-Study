@@ -5,8 +5,10 @@ spring:
 kakao:
   client-id: ${KAKAO_CLIENT_ID}
   redirect-uri: ${KAKAO_REDIRECT_URI}
+  admin-key: ${KAKAO_ADMIN_KEY}
   content-type: application/x-www-form-urlencoded;charset=utf-8
   grant-type: authorization_code
+  target-id-type: user_id
   token-url: https://kauth.kakao.com/oauth/token
   user-info-url: https://kapi.kakao.com/v2/user/me
-
+  unlink-url: https://kapi.kakao.com/v1/user/unlink
