@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(value = "kakaoClient", url = "${kakao.token-url}")
+@FeignClient(value = "kakaoAccessTokenClient", url = "${kakao.token-url}")
 public interface KakaoAccessTokenClient {
 
     @PostMapping
-    KakaoAccessTokenResponse kakaoAuth(
+    KakaoAccessTokenResponse kakaoAccessToken(
             @RequestHeader(name = "Content-type") final String contentType,
             @RequestParam(name = "code") final String code,
             @RequestParam(name = "client_id") final String clientId,
