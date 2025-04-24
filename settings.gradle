@@ -1,4 +1,3 @@
 rootProject.name = 'spring-study'
-include 'study-social_login'
 include 'study-kakao-social-login'
-
+include 'study-validation'
