@@ -3,7 +3,7 @@ dependencies {
     // audio(mp3)
     implementation "org.jaudiotagger:jaudiotagger:2.0.1"
 
-    // image(webp, jpeg, jpg, png)
+    // image(jpeg, jpg, png)
     implementation "com.twelvemonkeys.imageio:imageio:3.12.0"
 }
 
