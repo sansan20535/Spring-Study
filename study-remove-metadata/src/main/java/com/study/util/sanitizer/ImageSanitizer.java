@@ -1,9 +1,11 @@
 package com.study.util.sanitizer;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,6 +16,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ImageSanitizer {
 
     private final FfmpegRunner ffmpegRunner;
@@ -28,11 +31,18 @@ public class ImageSanitizer {
 
         try (ByteArrayInputStream in = new ByteArrayInputStream(input)) {
             BufferedImage image = ImageIO.read(in);
-            if (image == null) throw new IllegalArgumentException("이미지 디코딩 실패: " + lowerName);
+            if (image == null) {
+                logJpegSanity(lowerName, input); // 진단
+                throw new IllegalArgumentException("이미지 디코딩 실패: " + lowerName);
+            }
+
+            BufferedImage normalized = toRgb(image);
 
             try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
                 boolean ok = ImageIO.write(image, format, out);
-                if (!ok) throw new IllegalStateException("이미지 인코딩 실패(format=" + format + ")");
+                if (!ok) {
+                    throw new IllegalStateException("이미지 인코딩 실패(format=" + format + ")");
+                }
                 return out.toByteArray();
             }
         } catch (IOException e) {
@@ -85,6 +95,33 @@ public class ImageSanitizer {
         if (lowerName.endsWith(".jpeg")) {
             return "jpeg";
         }
+        if (lowerName.endsWith(".dng")) {
+            return "dng";
+        }
         throw new RuntimeException("잘못된 파일 확장자입니다.");
+    }
+
+    private static String hex(byte[] b, int off, int len) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = off; i < off + len && i < b.length; i++) sb.append(String.format("%02x", b[i]));
+        return sb.toString();
+    }
+
+    private static void logJpegSanity(String name, byte[] input) {
+        if (input == null || input.length < 4) {
+            log.warn("decode fail sanity: {} len={}", name, input == null ? null : input.length);
+            return;
+        }
+        String head = hex(input, 0, 4);
+        String tail = hex(input, Math.max(0, input.length - 2), 2);
+        log.warn("decode fail sanity: {} len={} head={} tail={}", name, input.length, head, tail);
+    }
+
+    private static BufferedImage toRgb(BufferedImage src) {
+        BufferedImage rgb = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+        Graphics2D g = rgb.createGraphics();
+        g.drawImage(src, 0, 0, null);
+        g.dispose();
+        return rgb;
     }
 }

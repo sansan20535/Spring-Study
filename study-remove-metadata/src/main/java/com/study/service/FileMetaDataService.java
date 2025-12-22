@@ -2,6 +2,7 @@ package com.study.service;
 
 import com.study.util.MetaDataRemover;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -19,15 +20,18 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Semaphore;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FileMetaDataService {
 
     @Value("${file.storage.path}")
     private String storagePath;
 
     private final MetaDataRemover metadataRemover;
+    private final Semaphore limiter = new Semaphore(20); // 동시에 20개만
 
     @Qualifier("fileProcessExecutor")
     private final Executor fileProcessExecutor;
@@ -42,10 +46,36 @@ public class FileMetaDataService {
         Files.createDirectories(dir); // 디렉터리 없으면 생성
 
         List<CompletableFuture<FileProcessResult>> futures = files.stream()
-                .map(file -> CompletableFuture.supplyAsync(() -> processOne(file, dir), fileProcessExecutor))
+                .map(file -> CompletableFuture.supplyAsync(() -> {
+                    try {
+                        limiter.acquire();
+                        return processOne(file, dir);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return FileProcessResult.fail(file.getOriginalFilename(), "Interrupted");
+                    } finally {
+                        limiter.release();
+                    }
+                }, fileProcessExecutor))
                 .toList();
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+        // ✅ futures -> results 로 변환
+        List<FileProcessResult> results = futures.stream()
+                .map(CompletableFuture::join)
+                .toList();
+
+        long ok = results.stream().filter(FileProcessResult::success).count();
+        long fail = results.size() - ok;
+
+        log.info("file-process done. total={}, ok={}, fail={}", results.size(), ok, fail);
+
+        results.stream()
+                .filter(r -> !r.success())
+                .limit(30)
+                .forEach(r -> log.warn("FAIL originalName={}, error={}", r.originalName(), r.error()));
+
         return null;
     }
 

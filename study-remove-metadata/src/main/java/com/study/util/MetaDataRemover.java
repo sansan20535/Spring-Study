@@ -20,7 +20,7 @@ public class MetaDataRemover {
         String name = originalName.toLowerCase(Locale.ROOT);
 
         // 이미지
-        if (name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png") || name.endsWith(".webp")
+        if (name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png") || name.endsWith(".webp") || name.endsWith(".dng")
                 || (contentType != null && contentType.startsWith("image/"))) {
             return imageSanitizer.sanitize(input, name);
         }
