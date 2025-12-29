@@ -1,0 +1,14 @@
+spring:
+  config:
+    import: application.properties
+
+deepl:
+  api-key: ${DEEPL-API-KEY}
+
+papago:
+  client-id: ${PAPAGO-CLIENT-ID}
+  client-secret: ${PAPAGO-CLIENT-SECRET}
+  translation-url: ${PAPAGO-TRANSLATION-URL}
+
+gpt:
+  secret-key: ${GPT-SECRET-KEY}
