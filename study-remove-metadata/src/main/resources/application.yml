@@ -1,0 +1,13 @@
+file:
+  storage:
+    path: /Users/pondmakers/Desktop/clean-files
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 15GB
+      max-request-size: 15GB
+
+server:
+  tomcat:
+    max-swallow-size: -1

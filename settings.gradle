@@ -1,5 +1,5 @@
 rootProject.name = 'spring-study'
 include 'study-kakao-social-login'
 include 'study-validation'
-
+include 'study-remove-metadata'
 include 'study-translation'
