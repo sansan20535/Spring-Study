@@ -1,0 +1,12 @@
+dependencies {
+    // DEEPL
+    implementation "com.deepl.api:deepl-java:1.14.0"
+}
+
+bootJar {
+    enabled = true
+}
+
+jar {
+    enabled = false
+}
